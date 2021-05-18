@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>Letter Recognition</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="static/style.css" rel="stylesheet">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+    <script type="text/javascript" src="{{url_for('static',filename='draw.js')}}"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+
+  <body>
+
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+      <h5 class="my-0 mr-md-auto font-weight-normal">Letter Recognition</h5>
+    </div>
+    <!-- <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+      <h1 class="display-4">Letter Recognition</h1>
+    </div> -->
+    
+    <div class="container">
+      <div class='row'><h1>Letter recognition</h1></div>
+      <div class="row">
+        <div class="column">
+        <!-- <form id="predict_form" action="{{url_for('predict')}}" method="POST" enctype="multipart/form-data"> -->
+        <!-- <form id="predict_form" action="call_model();" method="POST" enctype="multipart/form-data"> -->
+            <canvas id="canvas" name="draw" width="400px" height="400px">
+                <script>
+                    $(document).ready(function()
+                    {
+                        drawCanvas();
+                    })
+                </script>
+            </canvas>
+            <input type="hidden" class="btn btn-lg btn-block btn-outline-primary" id="url" name="url" value="">
+            <input type="submit" class="btn btn-lg btn-block btn-outline-primary" id="predict" value="Predict" onclick="call_model();">
+            <input type="submit" class="btn btn-lg btn-block btn-outline-primary" id="clear_button" value="Clear" onclick="clear_graph();">
+            
+             <!-- <button class="btn btn-lg btn-block btn-outline-primary" onclick="clear_graph()">Click me</button> -->
+            <!-- <input type="submit" class="btn btn-lg btn-block btn-outline-primary" id="clear_button2" value="Clear" onclick="clear_canvas();"> -->
+        <!-- </form> -->
+      </div>
+      <div class="column">
+        <div id="result">
+          <!-- <h1 >{{prediction}}</h1> -->
+
+        </div>
+      </div>
+      </div>
+    </div>
+    <!-- <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto ">
+      <p> The model trained for recognition of the alphabets is as follows:</p>
+    </div> -->
+  
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="../../../../assets/js/vendor/popper.min.js"></script>
+    <script src="../../../../dist/js/bootstrap.min.js"></script>
+    <script src="../../../../assets/js/vendor/holder.min.js"></script>
+    <script>
+      Holder.addTheme('thumb', {
+        bg: '#55595c',
+        fg: '#eceeef',
+        text: 'Thumbnail'
+      });
+    </script> -->
+    <!-- <script type="text/javascript" src="{{url_for('static',filename='draw.js')}}"></script> -->
+    <script>
+      var bar_graph=document.getElementById("result")
+      
+      function layout_bar(title,xaxis,yaxis,barmode,range)
+      {
+        var layoutbar={
+        // autosize: false,
+        width: 500,
+        height: 400,
+        barmode:barmode,
+        title: {
+          text:title,
+          font: {
+            size: 15
+          }},
+        margin: {
+          l: 50,
+          r: 30,
+          b: 35,
+          t: 50,
+          pad: 4
+        },
+          paper_bgcolor: '#fff',
+          plot_bgcolor: '#fafafa',
+          xaxis: {
+                  title: {
+                    text: xaxis,
+                    font: {
+                      
+                      size: 12,
+                      color: '#000'
+                    }
+                  },
+                  tickfont:
+                  {
+                    size: 10,
+                    
+                  },
+                  tickangle:0,
+                },
+          yaxis: {
+                  title: {
+                    text: yaxis,
+                    font: {        
+                      size: 12,
+                      color: '#000'
+                    }
+                  },
+                  // range:range,
+                  // ticks:{
+
+                  // },
+                }
+          }
+
+          return layoutbar
+          }
+      // Plotly.newPlot('result', data);
+      Plotly.newPlot(bar_graph, [],layout_bar('Model Prediction','Letter','Probability (log(probability))',"here",[0,1]));
+      function addBar(x_data,data)
+       {
+          var trace1 = {
+            x: x_data,
+            y: data,
+            name: "Model Prediction",
+            type: 'bar',
+             
+            textposition: 'auto',
+            // hoverinfo: 'none',
+            opacity: 0.5,
+            marker: {
+              color: '#b91a5a',
+              line: {
+                color: '#ffff',
+                width: 1.5
+              }
+            }
+          };
+          console.log("adding graph")
+         Plotly.addTraces(bar_graph,[trace1])
+       }
+
+       function call_model()
+       {
+         save();
+        $.ajax({
+              url: "{{url_for('predict')}}",
+              type: "POST",
+              data: JSON.stringify({url: document.getElementById('url').value}),// send the data to backend
+              contentType: "application/json; charset=utf-8",
+              success: function(data) {
+                data_recv=JSON.parse(data)
+                console.log(data_recv)
+                addBar(data_recv.labels_x,data_recv.values);
+              }
+            })
+      }
+
+      function clear_graph()
+      {
+        console.log("hererere")
+
+        clear_canvas();
+        // context.fillRect(0, 0, 300, 150);
+        // check();
+        // remove();
+        // const context2 = canvas.getContext('2d');
+        // context2.clearRect(0, 0, context2.canvas.width, context2.canvas.height);
+        // context2.beginPath()
+        if(bar_graph.data.length > 0)
+        Plotly.deleteTraces(bar_graph,0);
+        
+        
+      }
+      //  setTimeout(function() {
+      //          	addBar(1,"#b91a5a",{{prediction}});
+      //            }, 3000);
+      //   setTimeout(function() {
+      //          	addBar(2,"#c7c7c7",[20]);
+      //            }, 6000);
+    </script>
+  </body>
+</html>

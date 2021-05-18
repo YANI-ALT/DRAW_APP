@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Home</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+    <script type="text/javascript" src="{{url_for('static',filename='draw.js')}}"></script>
+    <style>
+        #canvas
+        {
+            border: solid 2px red;
+            margin:10px;
+        }
+        header{
+            font-size:20px;
+        }
+        #predict
+        {
+            display:block;
+            margin:10px;
+            /* background-color:blue; */
+        }
+        /* #predict_form
+        {
+            /* background-color:yellow; */
+        
+    </style>
+  </head>
+  <header>Letter Recognition App</header>
+  <body>
+<form id="predict_form" action="{{url_for('predict')}}" method="POST" enctype="multipart/form-data">
+
+    <canvas id="canvas" name="draw" width="400px" height="400px">
+        <script>
+            $(document).ready(function()
+            {
+                drawCanvas();
+            })
+        </script>
+        </canvas>
+        <input type="hidden" id="url" name="url" value="">
+        <input type="submit" id="predict" value="Predict" onclick="return save();">
+    
+</form>
+
+
+    
+  </body>
+</html>
